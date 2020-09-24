@@ -1,16 +1,24 @@
 const express = require('express');
-const app = express();
+const axios = require("axios");
 const bParser = require('body-parser');
+const app = express();
 app.use(bParser.urlencoded({extended: true}));
 
-app.get('/', (request, response) =>{
-    response.sendFile(__dirname+'/index.html')
+app.get('/', (req, res) =>{
+    res.sendFile(__dirname+'/index.html')
 });
 
-app.post('/', (request, response) =>{
-    let num1 = request.body.num1, num2 = request.body.num2;
-    console.log('number 1 ', num1);
-    console.log('number 2 ', num2);
+app.post('/', (req, res) =>{
+    let url = "https://api.coindesk.com/v1/bpi/currentprice/eur.json";
+    axios.get(url).then((response)=>{
+        let dis = (response.data.bpi.EUR.rate).replace(',', ''),
+        num1 = Number(req.body.num1);
+        res.write((num1*dis)+"");
+        res.send();
+    }).
+    catch((error)=>{
+        console.log(error);
+    });
 });
 
 app.listen(3000, () => {
